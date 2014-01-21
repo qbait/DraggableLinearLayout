@@ -32,39 +32,33 @@ public class DraggableLinearLayout extends LinearLayout implements View.OnTouchL
     private final int INVALID_ID = -1;
     private int mMobileItemPosition = INVALID_ID;
 
+    private LockableScrollView mScrollView;
+
     public DraggableLinearLayout(Context context) {
         this(context, null);
     }
 
     public DraggableLinearLayout(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
     }
 
-    public DraggableLinearLayout(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
+    @Override
+    public void addView(final View child) {
+        super.addView(child);
+        child.setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                mHoverCell = getAndAddHoverView(child);
+                mCellIsMobile = true;
+                mMobileItemPosition = indexOfChild(child);
+                child.setVisibility(INVISIBLE);
+                mScrollView = (LockableScrollView) getRootView().findViewById(R.id.scroll);
+                mScrollView.setScrollingEnabled(false);
 
-    protected void onFinishInflate () {
-        setupListeners();
-    }
-
-
-    private void setupListeners() {
-        for (int i = 0; i < getChildCount(); i++) {
-            final View v = getChildAt(i);
-            v.setOnLongClickListener(new OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    mHoverCell = getAndAddHoverView(v);
-                    mCellIsMobile = true;
-                    mMobileItemPosition = indexOfChild(v);
-                    v.setVisibility(INVISIBLE);
-
-                    return true;
-                }
-            });
-            v.setOnTouchListener(this);
-        }
+                return true;
+            }
+        });
+        child.setOnTouchListener(this);
     }
 
     @Override
@@ -108,8 +102,13 @@ public class DraggableLinearLayout extends LinearLayout implements View.OnTouchL
         mHoverCell = null;
         mCellIsMobile = false;
         mTotalOffset = 0;
-        getChildAt(mMobileItemPosition).setVisibility(VISIBLE);
+        View mobileView = getChildAt(mMobileItemPosition);
+        if(mobileView != null) {
+            mobileView.setVisibility(VISIBLE);
+        }
         mMobileItemPosition = INVALID_ID;
+        mScrollView.setScrollingEnabled(true);
+        invalidate();
     }
 
     public View getViewForID (int itemID) {
@@ -172,8 +171,8 @@ public class DraggableLinearLayout extends LinearLayout implements View.OnTouchL
 
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(15);
-        paint.setColor(Color.WHITE);
+        paint.setStrokeWidth(8);
+        paint.setColor(Color.GRAY);
 
         can.drawBitmap(bitmap, 0, 0, null);
         can.drawRect(rect, paint);
@@ -183,7 +182,7 @@ public class DraggableLinearLayout extends LinearLayout implements View.OnTouchL
 
     private Bitmap getBitmapFromView(View v) {
         Bitmap bitmap = Bitmap.createBitmap(v.getWidth(), v.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas (bitmap);
+        Canvas canvas = new Canvas(bitmap);
         v.draw(canvas);
         return bitmap;
     }
