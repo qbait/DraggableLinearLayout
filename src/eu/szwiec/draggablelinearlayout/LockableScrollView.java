@@ -1,4 +1,4 @@
-package com.dragdrop;
+package eu.szwiec.draggablelinearlayout;
 
 import android.content.Context;
 import android.util.AttributeSet;

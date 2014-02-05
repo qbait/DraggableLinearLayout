@@ -1,4 +1,4 @@
-package com.dragdrop;
+package eu.szwiec.draggablelinearlayout;
 
 import android.app.Activity;
 import android.os.Bundle;
