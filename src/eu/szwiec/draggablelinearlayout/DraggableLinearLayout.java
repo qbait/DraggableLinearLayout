@@ -107,7 +107,9 @@ public class DraggableLinearLayout extends LinearLayout implements View.OnTouchL
             mobileView.setVisibility(VISIBLE);
         }
         mMobileItemPosition = INVALID_ID;
-        mScrollView.setScrollingEnabled(true);
+        if(mScrollView != null) {
+            mScrollView.setScrollingEnabled(true);
+        }
         invalidate();
     }
 
